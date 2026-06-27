@@ -248,7 +248,16 @@ function detectDNS(){
 function detectIP(){
   return fetch('https://ipapi.co/json/',{signal:AbortSignal.timeout(6000)})
     .then(r=>r.json())
-    .catch(()=>fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(d=>({ip:d.ip})).catch(()=>({ip:'Unknown'})));
+    .then(d=>{
+      if(d.error||!d.ip) throw new Error('ipapi error');
+      return d;
+    })
+    .catch(()=>
+      fetch('https://ipinfo.io/json?token=',{signal:AbortSignal.timeout(5000)})
+        .then(r=>r.json())
+        .then(d=>({ip:d.ip,city:d.city,region:d.region,country_name:d.country,country_code:d.country,org:d.org}))
+        .catch(()=>fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(d=>({ip:d.ip})).catch(()=>({ip:'Unknown'})))
+    );
 }
 
 // ── Browser info ───────────────────────────────────────────────────────────
@@ -308,18 +317,45 @@ async function runTests(){
   const publicRTCIPs = rtcIPs.filter(ip=>!isPrivate(ip) && ip!==userIP);
   const rtcLeaked = publicRTCIPs.length>0;
 
-  // DNS: compare DNS resolver IP location with user IP
+  // DNS: compare DNS resolver IP/ASN with user IP
+  // Cloudflare DoH may return "asn:XXXXX" instead of an IP
+  const knownSafeDNS = {
+    '13335':'Cloudflare (1.1.1.1)',
+    '15169':'Google DNS (8.8.8.8)',
+    '36492':'Google DNS',
+    '395747':'Quad9 (9.9.9.9)',
+    '29518':'Quad9',
+    '714':'Apple iCloud Relay',
+    '20940':'Akamai DNS',
+    '9009':'M247 / VPN provider',
+    '199524':'G-Core DNS',
+    '36459':'GitHub',
+    '13414':'Twitter',
+    '54113':'Fastly',
+  };
   let dnsLeaked = false;
   let dnsStatus = 'unknown';
-  if(dnsIP && userIP && dnsIP!=='null'){
-    const dnsIsUserIP = dnsIP===userIP;
-    const dnsPrivate = isPrivate(dnsIP);
-    if(dnsPrivate){
-      dnsStatus='private';// local resolver, not a leak
-    } else if(!dnsIsUserIP && !isHosting){
-      dnsLeaked=true; dnsStatus='leaked';
+  let dnsDisplayName = dnsIP||'';
+  if(dnsIP && dnsIP!=='null'){
+    if(dnsIP.startsWith('asn:')){
+      const asnNum = dnsIP.replace('asn:','');
+      if(knownSafeDNS[asnNum]){
+        dnsStatus='ok';
+        dnsDisplayName=knownSafeDNS[asnNum];
+      } else {
+        dnsLeaked=true; dnsStatus='leaked';
+        dnsDisplayName=`ASN ${asnNum} (unknown provider)`;
+      }
     } else {
-      dnsStatus='ok';
+      const dnsIsUserIP = dnsIP===userIP;
+      const dnsPrivate = isPrivate(dnsIP);
+      if(dnsPrivate){
+        dnsStatus='private';
+      } else if(!dnsIsUserIP && !isHosting){
+        dnsLeaked=true; dnsStatus='leaked';
+      } else {
+        dnsStatus='ok';
+      }
     }
   }
 
@@ -360,9 +396,9 @@ async function runTests(){
 
   // DNS card
   if(dnsLeaked){
-    setCard2('card-dns','leaked','DNS Leak Detected',`DNS resolver: ${dnsIP}`,'Your DNS queries may be going to your ISP instead of your VPN. Enable DNS leak protection.');
+    setCard2('card-dns','leaked','DNS Leak Detected',`DNS resolver: ${dnsDisplayName}`,'Your DNS queries may be going to your ISP instead of your VPN. Enable DNS leak protection.');
   } else if(dnsIP && dnsStatus!=='unknown'){
-    setCard2('card-dns','safe','No DNS Leak',`DNS resolver: ${dnsIP||'Cloudflare DoH'}`,dnsStatus==='private'?'Using local DNS resolver':'DNS is routed correctly');
+    setCard2('card-dns','safe','No DNS Leak',`DNS via: ${dnsDisplayName||'Private resolver'}`,dnsStatus==='private'?'Using local DNS resolver':'DNS is routed through a privacy-safe provider');
   } else {
     setCard2('card-dns','info','DNS Check','Unable to verify DNS resolver','Cloudflare DoH was unreachable — test your DNS manually at 1.1.1.1/help');
   }
@@ -394,7 +430,7 @@ async function runTests(){
     ['VPN/Hosting IP',isHosting?'✓ Likely':'✗ Looks residential'],
     ['WebRTC Status',rtcLeaked?`⚠ LEAKED (${publicRTCIPs.join(', ')})`:'✓ Safe'],
     ['WebRTC Local IPs',rtcIPs.filter(isPrivate).join(', ')||'None'],
-    ['DNS Resolver',dnsIP||'Unknown'],
+    ['DNS Resolver',dnsDisplayName||'Unknown'],
     ['DNS Status',dnsLeaked?'⚠ LEAKED':'✓ Safe'],
     ['Browser',`${browser.browser} on ${browser.os}`],
     ['Timezone',userTZ],
