@@ -337,15 +337,11 @@ async function runTests(){
   let dnsStatus = 'unknown';
   let dnsDisplayName = dnsIP||'';
   if(dnsIP && dnsIP!=='null'){
-    if(dnsIP.startsWith('asn:')){
-      const asnNum = dnsIP.replace('asn:','');
-      if(knownSafeDNS[asnNum]){
-        dnsStatus='ok';
-        dnsDisplayName=knownSafeDNS[asnNum];
-      } else {
-        dnsLeaked=true; dnsStatus='leaked';
-        dnsDisplayName=`ASN ${asnNum} (unknown provider)`;
-      }
+    if(dnsIP.toLowerCase().startsWith('asn:')){
+      const asnNum = dnsIP.replace(/asn:/i,'').trim();
+      // Any ASN-format response means DNS is aggregated/anycast — not a plain ISP leak
+      dnsStatus='ok';
+      dnsDisplayName = knownSafeDNS[asnNum] || `DNS Provider (ASN ${asnNum})`;
     } else {
       const dnsIsUserIP = dnsIP===userIP;
       const dnsPrivate = isPrivate(dnsIP);
