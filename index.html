@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Leak Test — Check IP, WebRTC & DNS Leaks Instantly (2025)</title>
+<meta name="description" content="Instantly check if your VPN is leaking your real IP address, DNS server, or WebRTC data. Free privacy test — detects IP leaks, DNS leaks, and browser fingerprint in seconds. No install required.">
+<link rel="canonical" href="https://privacy-leak-test.pages.dev/">
+<meta property="og:title" content="Privacy Leak Test — IP, DNS &amp; WebRTC Leak Checker">
+<meta property="og:description" content="Is your VPN working? Check for IP leaks, DNS leaks, and WebRTC leaks instantly. Free, no registration, results in seconds.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://privacy-leak-test.pages.dev/">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6626869606288906" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Privacy Leak Test 2025","description":"Check for IP, DNS, and WebRTC leaks to verify your VPN is working correctly","url":"https://privacy-leak-test.pages.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a DNS leak?","acceptedAnswer":{"@type":"Answer","text":"A DNS leak occurs when your VPN fails to route your DNS queries through its encrypted tunnel. Instead, DNS requests go to your ISP's DNS servers, revealing which websites you visit even if your IP appears to be from the VPN. A good VPN should route ALL traffic — including DNS — through its servers. You can test for DNS leaks by comparing your public IP location with the location of your DNS resolver."}},{"@type":"Question","name":"What is a WebRTC IP leak?","acceptedAnswer":{"@type":"Answer","text":"WebRTC is a browser technology that allows peer-to-peer connections (video calls, file sharing). It can bypass your VPN and reveal your real IP address directly to websites — even when you're connected to a VPN. This is called a WebRTC leak. Most modern browsers support WebRTC, and many VPNs fail to prevent these leaks. You can disable WebRTC in your browser settings or use a browser extension to block it."}},{"@type":"Question","name":"Does using a VPN prevent IP leaks?","acceptedAnswer":{"@type":"Answer","text":"A properly configured VPN should prevent your real IP address from being visible. However, many VPNs fail to prevent WebRTC leaks, DNS leaks, and IPv6 leaks. Running a privacy leak test while connected to your VPN is the only way to verify it's working correctly. If this test shows your real IP while connected to a VPN, your VPN has a leak. Try switching VPN servers, enabling 'kill switch' features, or using a different VPN provider."}},{"@type":"Question","name":"How do I fix a DNS leak?","acceptedAnswer":{"@type":"Answer","text":"To fix a DNS leak: (1) Use a VPN that has built-in DNS leak protection. (2) Manually set your DNS servers to privacy-focused options like 1.1.1.1 (Cloudflare) or 9.9.9.9 (Quad9). (3) Enable your VPN's 'DNS leak protection' setting if available. (4) On Windows, disable Teredo, SmartMultiHomed, and LLMNR in network settings. (5) Use a VPN that uses its own private DNS servers rather than relying on the OS DNS stack."}},{"@type":"Question","name":"How do I fix a WebRTC leak?","acceptedAnswer":{"@type":"Answer","text":"To fix a WebRTC leak: (1) Install a browser extension that blocks WebRTC (uBlock Origin with correct settings, or WebRTC Leak Prevent). (2) In Firefox, go to about:config and set media.peerconnection.enabled to false. (3) Use the Brave browser, which blocks WebRTC leaks by default. (4) Use a VPN that actively routes WebRTC traffic through its tunnel (most premium VPNs do this in their desktop apps)."}}]}</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--surface:#161b22;--surface2:#21262d;--border:#30363d;--text:#e6edf3;--text-muted:#7d8590;--text-dim:#484f58;--green:#3fb950;--red:#f85149;--yellow:#d29922;--blue:#58a6ff;--purple:#bc8cff;--accent:#1f6feb}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+header{background:linear-gradient(135deg,#0d1117,#161b22);border-bottom:1px solid var(--border);padding:32px 20px 28px;text-align:center;position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:-50%;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(31,111,235,.12) 0%,transparent 70%);pointer-events:none}
+.header-icon{font-size:40px;margin-bottom:10px}
+header h1{font-size:clamp(20px,4vw,32px);font-weight:700;letter-spacing:-.5px}
+header p{margin-top:6px;color:var(--text-muted);font-size:15px}
+.container{max-width:900px;margin:0 auto;padding:0 16px 80px}
+.ad-slot{background:var(--surface);border:1px dashed var(--border);border-radius:8px;min-height:90px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:12px;margin:20px 0}
+/* Scanner animation */
+#scanner{text-align:center;padding:48px 20px;display:block}
+.scan-ring{width:100px;height:100px;border-radius:50%;border:2px solid var(--border);border-top-color:var(--blue);animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scan-text{color:var(--text-muted);font-size:14px}
+.scan-step{color:var(--blue);font-weight:600;font-size:15px;margin-bottom:4px}
+/* Overall result banner */
+#overall{display:none;border-radius:14px;padding:24px 28px;margin:24px 0;border:1px solid;position:relative;overflow:hidden}
+#overall.safe{background:rgba(63,185,80,.08);border-color:rgba(63,185,80,.3)}
+#overall.leaked{background:rgba(248,81,73,.08);border-color:rgba(248,81,73,.3)}
+#overall.partial{background:rgba(210,153,34,.08);border-color:rgba(210,153,34,.3)}
+#overall::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:14px 0 0 14px}
+#overall.safe::before{background:var(--green)}
+#overall.leaked::before{background:var(--red)}
+#overall.partial::before{background:var(--yellow)}
+.overall-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.overall-label.safe{color:var(--green)}.overall-label.leaked{color:var(--red)}.overall-label.partial{color:var(--yellow)}
+.overall-title{font-size:22px;font-weight:700}
+.overall-sub{color:var(--text-muted);font-size:14px;margin-top:4px}
+.score-badge{float:right;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;border:2px solid}
+.score-badge.safe{border-color:var(--green);color:var(--green);background:rgba(63,185,80,.1)}
+.score-badge.leaked{border-color:var(--red);color:var(--red);background:rgba(248,81,73,.1)}
+.score-badge.partial{border-color:var(--yellow);color:var(--yellow);background:rgba(210,153,34,.1)}
+/* Check cards grid */
+.checks-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+@media(max-width:600px){.checks-grid{grid-template-columns:1fr}}
+.check-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden;transition:border-color .2s}
+.check-card.status-safe{border-left:3px solid var(--green)}
+.check-card.status-leaked{border-left:3px solid var(--red)}
+.check-card.status-warn{border-left:3px solid var(--yellow)}
+.check-card.status-info{border-left:3px solid var(--blue)}
+.check-card.loading{border-left:3px solid var(--border)}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.card-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted)}
+.status-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px}
+.pill-safe{background:rgba(63,185,80,.15);color:var(--green)}
+.pill-leaked{background:rgba(248,81,73,.15);color:var(--red)}
+.pill-warn{background:rgba(210,153,34,.15);color:var(--yellow)}
+.pill-info{background:rgba(88,166,255,.1);color:var(--blue)}
+.pill-loading{background:rgba(125,133,144,.1);color:var(--text-muted)}
+.card-main{font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;word-break:break-all}
+.card-sub{font-size:12px;color:var(--text-muted);line-height:1.5}
+.card-detail{font-size:12px;color:var(--text-dim);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+/* Info section */
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin:20px 0}
+.info-card h2{font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.leak-table{width:100%;border-collapse:collapse;font-size:13px}
+.leak-table th{text-align:left;padding:8px 10px;color:var(--text-muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+.leak-table td{padding:8px 10px;border-bottom:1px solid var(--surface2);color:var(--text-muted)}
+.leak-table td:first-child{color:var(--text);font-weight:600}
+/* FAQ */
+.faq-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin:20px 0}
+.faq-card h2{font-size:16px;font-weight:700;margin-bottom:14px}
+details{border-bottom:1px solid var(--border);padding:12px 0}
+details:last-child{border-bottom:none}
+summary{font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;color:var(--text);gap:12px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:'+';color:var(--blue);font-size:18px;font-weight:400;flex-shrink:0}
+details[open] summary::after{content:'−'}
+details p{margin-top:10px;color:var(--text-muted);font-size:13px;line-height:1.7}
+/* Retest button */
+.retest-btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;transition:opacity .2s}
+.retest-btn:hover{opacity:.85}
+footer{text-align:center;color:var(--text-dim);font-size:12px;padding:20px;border-top:1px solid var(--border);margin-top:40px}
+footer a{color:var(--text-muted)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.loading .card-main{animation:pulse 1.5s ease-in-out infinite;color:var(--text-dim)}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-icon">🔒</div>
+  <h1>Privacy Leak Test</h1>
+  <p>Instantly check if your VPN is leaking your IP, DNS, or WebRTC data</p>
+</header>
+
+<div class="container">
+  <div class="ad-slot"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-6626869606288906" data-ad-slot="5544332211" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+  <div id="scanner">
+    <div class="scan-ring"></div>
+    <div class="scan-step" id="scan-step">Detecting your IP address…</div>
+    <div class="scan-text">Running privacy checks — this takes about 3 seconds</div>
+  </div>
+
+  <div id="overall"></div>
+
+  <div class="checks-grid" id="checks-grid" style="display:none">
+    <div class="check-card loading" id="card-ip">
+      <div class="card-header"><div class="card-title">Public IP Address</div><span class="status-pill pill-loading">Checking…</span></div>
+      <div class="card-main">—</div>
+      <div class="card-sub">Your visible IP address on the internet</div>
+    </div>
+    <div class="check-card loading" id="card-loc">
+      <div class="card-header"><div class="card-title">Location &amp; ISP</div><span class="status-pill pill-info">Detected</span></div>
+      <div class="card-main">—</div>
+      <div class="card-sub">Based on your IP geolocation</div>
+    </div>
+    <div class="check-card loading" id="card-webrtc">
+      <div class="card-header"><div class="card-title">WebRTC Leak</div><span class="status-pill pill-loading">Checking…</span></div>
+      <div class="card-main">—</div>
+      <div class="card-sub">Can websites see your real IP via WebRTC?</div>
+    </div>
+    <div class="check-card loading" id="card-dns">
+      <div class="card-header"><div class="card-title">DNS Leak</div><span class="status-pill pill-loading">Checking…</span></div>
+      <div class="card-main">—</div>
+      <div class="card-sub">Is your DNS routed outside your VPN?</div>
+    </div>
+    <div class="check-card loading" id="card-tz">
+      <div class="card-header"><div class="card-title">Timezone Check</div><span class="status-pill pill-loading">Checking…</span></div>
+      <div class="card-main">—</div>
+      <div class="card-sub">Does your browser timezone match your IP location?</div>
+    </div>
+    <div class="check-card loading" id="card-browser">
+      <div class="card-header"><div class="card-title">Browser Info</div><span class="status-pill pill-info">Detected</span></div>
+      <div class="card-main">—</div>
+      <div class="card-sub">Browser fingerprint visible to websites</div>
+    </div>
+  </div>
+
+  <div id="results-detail" style="display:none">
+    <div class="info-card">
+      <h2>🔍 Detailed Results</h2>
+      <table class="leak-table" id="detail-table"></table>
+      <button class="retest-btn" onclick="runTests()" style="margin-top:14px">↺ Run Test Again</button>
+    </div>
+
+    <div class="ad-slot"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-6626869606288906" data-ad-slot="6655443322" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+    <div class="info-card" id="fix-section" style="display:none">
+      <h2>🛡️ How to Fix Your Leaks</h2>
+      <div id="fix-content" style="color:var(--text-muted);font-size:14px;line-height:1.8"></div>
+    </div>
+  </div>
+
+  <div class="faq-card">
+    <h2>Frequently Asked Questions</h2>
+    <details open><summary>What is a DNS leak?</summary><p>A DNS leak occurs when your VPN fails to route your DNS queries through its encrypted tunnel. Instead, DNS requests go to your ISP's DNS servers, revealing which websites you visit even if your IP appears to be from the VPN. A good VPN should route ALL traffic — including DNS — through its servers.</p></details>
+    <details><summary>What is a WebRTC IP leak?</summary><p>WebRTC is a browser technology that allows peer-to-peer connections (video calls, file sharing). It can bypass your VPN and reveal your real IP address directly to websites — even when you're connected to a VPN. You can disable WebRTC in browser settings or use an extension like uBlock Origin to block it.</p></details>
+    <details><summary>Does a VPN prevent all IP leaks?</summary><p>Not always. Many VPNs fail to prevent WebRTC leaks, DNS leaks, and IPv6 leaks. Running a privacy leak test while connected to your VPN is the only way to verify it's working correctly. If this test shows your real IP while connected to a VPN, your VPN has a leak. Try switching VPN servers or enabling the 'kill switch' feature.</p></details>
+    <details><summary>How do I fix a DNS leak?</summary><p>(1) Use a VPN with built-in DNS leak protection. (2) Set your DNS servers to privacy-focused options like 1.1.1.1 (Cloudflare) or 9.9.9.9 (Quad9). (3) Enable 'DNS leak protection' in your VPN settings. (4) On Windows, disable SmartMultiHomed and LLMNR in network adapter settings.</p></details>
+    <details><summary>How do I fix a WebRTC leak?</summary><p>(1) Install uBlock Origin and enable WebRTC blocking in its settings. (2) In Firefox: go to about:config and set media.peerconnection.enabled to false. (3) Use the Brave browser — it blocks WebRTC leaks by default. (4) Use a premium VPN that routes WebRTC traffic through its tunnel (NordVPN, ExpressVPN, Mullvad).</p></details>
+  </div>
+
+  <div class="ad-slot"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-6626869606288906" data-ad-slot="7766554433" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+</div>
+
+<footer><p>PrivacyLeakTest · Results are for informational purposes. No data is stored or logged.</p><p style="margin-top:4px"><a href="/privacy.html">Privacy Policy</a></p></footer>
+
+<script>
+// ── utilities ──────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const flag = cc => cc ? String.fromCodePoint(...[...cc.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65)) : '';
+const qs = (el, sel) => el.querySelector(sel);
+
+function setCard(id, status, main, sub, detail=''){
+  const c = $(id);
+  c.className = `check-card status-${status}`;
+  const pillClass = {safe:'pill-safe',leaked:'pill-leaked',warn:'pill-warn',info:'pill-info'}[status]||'pill-info';
+  const pillText = {safe:'✓ Safe',leaked:'⚠ LEAKED',warn:'⚠ Warning',info:'Detected'}[status]||status;
+  c.innerHTML = `
+    <div class="card-header">
+      <div class="card-title">${qs(c,'div')?qs(c,'.card-title')?.textContent||'':c.dataset.title||''}</div>
+      <span class="status-pill ${pillClass}">${pillText}</span>
+    </div>
+    <div class="card-main">${main}</div>
+    <div class="card-sub">${sub}</div>
+    ${detail?`<div class="card-detail">${detail}</div>`:''}
+  `;
+}
+
+// Preserve titles before overwriting
+const titles = {};
+['card-ip','card-loc','card-webrtc','card-dns','card-tz','card-browser'].forEach(id=>{
+  titles[id] = qs($(id),'.card-title')?.textContent||'';
+});
+
+function setCard2(id,status,main,sub,detail=''){
+  const c=$(id);
+  c.className=`check-card status-${status}`;
+  const pillClass={safe:'pill-safe',leaked:'pill-leaked',warn:'pill-warn',info:'pill-info'}[status]||'pill-info';
+  const pillText={safe:'✓ Safe',leaked:'⚠ LEAKED',warn:'⚠ Warning',info:'Detected'}[status]||status;
+  c.innerHTML=`<div class="card-header"><div class="card-title">${titles[id]}</div><span class="status-pill ${pillClass}">${pillText}</span></div><div class="card-main">${main}</div><div class="card-sub">${sub}</div>${detail?`<div class="card-detail">${detail}</div>`:''}`;
+}
+
+// ── WebRTC leak detection ──────────────────────────────────────────────────
+function detectWebRTC(){
+  return new Promise(resolve=>{
+    const ips=new Set();
+    try{
+      const pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]});
+      pc.createDataChannel('privacy-test');
+      pc.onicecandidate=e=>{
+        if(!e.candidate){
+          pc.close();
+          resolve([...ips]);
+          return;
+        }
+        const m = e.candidate.candidate.match(/(\d{1,3}(?:\.\d{1,3}){3})/g);
+        if(m) m.forEach(ip=>{if(!ip.startsWith('0.') && ip!=='0.0.0.0') ips.add(ip);});
+      };
+      pc.createOffer().then(o=>pc.setLocalDescription(o));
+      setTimeout(()=>{pc.close();resolve([...ips]);},4000);
+    }catch(e){resolve([]);}
+  });
+}
+
+// ── DNS leak via Cloudflare DoH ────────────────────────────────────────────
+function detectDNS(){
+  return fetch('https://cloudflare-dns.com/dns-query?name=whoami.cloudflare.com&type=TXT',{
+    headers:{'Accept':'application/dns-json'},
+    signal:AbortSignal.timeout(5000)
+  }).then(r=>r.json()).then(d=>{
+    const raw=d?.Answer?.[0]?.data||'';
+    return raw.replace(/"/g,'').trim();
+  }).catch(()=>null);
+}
+
+// ── IP geolocation ─────────────────────────────────────────────────────────
+function detectIP(){
+  return fetch('https://ipapi.co/json/',{signal:AbortSignal.timeout(6000)})
+    .then(r=>r.json())
+    .catch(()=>fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(d=>({ip:d.ip})).catch(()=>({ip:'Unknown'})));
+}
+
+// ── Browser info ───────────────────────────────────────────────────────────
+function getBrowserInfo(){
+  const ua=navigator.userAgent;
+  let browser='Unknown',os='Unknown';
+  if(ua.includes('Edg'))browser='Edge';
+  else if(ua.includes('Chrome'))browser='Chrome';
+  else if(ua.includes('Firefox'))browser='Firefox';
+  else if(ua.includes('Safari'))browser='Safari';
+  if(ua.includes('Windows'))os='Windows';
+  else if(ua.includes('Mac'))os='macOS';
+  else if(ua.includes('Linux'))os='Linux';
+  else if(ua.includes('Android'))os='Android';
+  else if(ua.includes('iPhone')||ua.includes('iPad'))os='iOS';
+  return{browser,os,tz:Intl.DateTimeFormat().resolvedOptions().timeZone,languages:navigator.languages?.join(', ')||navigator.language};
+}
+
+// ── main test runner ───────────────────────────────────────────────────────
+let results={};
+
+async function runTests(){
+  $('scanner').style.display='block';
+  $('checks-grid').style.display='none';
+  $('overall').style.display='none';
+  $('results-detail').style.display='none';
+
+  const step=$('scan-step');
+  step.textContent='Detecting your IP address…';
+
+  // Kick all async tasks simultaneously
+  const [geoData, rtcIPs, dnsIP] = await Promise.all([
+    detectIP(),
+    (step.textContent='Checking WebRTC leak…', detectWebRTC()),
+    (step.textContent='Testing DNS resolver…', detectDNS())
+  ]);
+
+  step.textContent='Analyzing results…';
+  await new Promise(r=>setTimeout(r,300));
+
+  const browser=getBrowserInfo();
+
+  results = {geo:geoData, rtcIPs, dnsIP, browser};
+
+  // ── Evaluate leaks ─────────────────────────────────────────────────────
+  const userIP = geoData?.ip||'Unknown';
+  const userCountry = geoData?.country_name||geoData?.country||'';
+  const userCountryCode = geoData?.country_code||geoData?.country||'';
+  const userCity = geoData?.city||'';
+  const userRegion = geoData?.region||'';
+  const userISP = geoData?.org||geoData?.isp||'Unknown ISP';
+  const isHosting = /vpn|proxy|hosting|datacenter|digital ocean|amazon|linode|vultr|ovh|hetzner|cloudflare|mullvad|expressvpn|nordvpn|private/i.test(userISP);
+
+  // WebRTC: local IPs (10.x, 192.168.x, 172.16–31.x) are expected; public IPs are leaks
+  const privateRanges = [/^10\./, /^192\.168\./, /^172\.(1[6-9]|2\d|3[01])\./, /^127\./, /^169\.254\./];
+  const isPrivate = ip => privateRanges.some(r=>r.test(ip));
+  const publicRTCIPs = rtcIPs.filter(ip=>!isPrivate(ip) && ip!==userIP);
+  const rtcLeaked = publicRTCIPs.length>0;
+
+  // DNS: compare DNS resolver IP location with user IP
+  let dnsLeaked = false;
+  let dnsStatus = 'unknown';
+  if(dnsIP && userIP && dnsIP!=='null'){
+    const dnsIsUserIP = dnsIP===userIP;
+    const dnsPrivate = isPrivate(dnsIP);
+    if(dnsPrivate){
+      dnsStatus='private';// local resolver, not a leak
+    } else if(!dnsIsUserIP && !isHosting){
+      dnsLeaked=true; dnsStatus='leaked';
+    } else {
+      dnsStatus='ok';
+    }
+  }
+
+  // Timezone mismatch
+  const tzCountryHints = {US:['America/'],CA:['America/'],GB:['Europe/London'],AU:['Australia/'],DE:['Europe/Berlin'],FR:['Europe/Paris'],JP:['Asia/Tokyo'],CN:['Asia/Shanghai'],IN:['Asia/Kolkata'],BR:['America/Sao_Paulo','America/Belem','America/Manaus']};
+  const userTZ = browser.tz;
+  const tzHints = tzCountryHints[userCountryCode]||[];
+  const tzMismatch = tzHints.length>0 && !tzHints.some(h=>userTZ.startsWith(h));
+
+  // ── Score ───────────────────────────────────────────────────────────────
+  let score=100, leaks=[], warnings=[];
+  if(rtcLeaked){score-=40;leaks.push('WebRTC');}
+  if(dnsLeaked){score-=35;leaks.push('DNS');}
+  if(tzMismatch){score-=15;warnings.push('Timezone mismatch');}
+
+  const overallStatus = score>=80?'safe':(score>=50?'partial':'leaked');
+
+  // ── Hide scanner, show results ───────────────────────────────────────────
+  $('scanner').style.display='none';
+  $('checks-grid').style.display='grid';
+  $('results-detail').style.display='block';
+
+  // IP card
+  setCard2('card-ip','info', userIP, `${flag(userCountryCode)} ${userCity?userCity+', ':''}${userCountry}`);
+
+  // Location/ISP card
+  const ispStatus = isHosting?'warn':'info';
+  setCard2('card-loc', ispStatus, userISP.replace(/^AS\d+\s*/,''), isHosting?'⚠ Looks like a VPN/hosting IP':'ISP or organization', `Country: ${userCountry} · Region: ${userRegion||'—'}`);
+
+  // WebRTC card
+  if(rtcLeaked){
+    setCard2('card-webrtc','leaked','WebRTC Leak Detected',`Real IP exposed: ${publicRTCIPs.join(', ')}`,`Websites can see your real IP even through a VPN. Disable WebRTC in browser settings.`);
+  } else if(rtcIPs.length===0){
+    setCard2('card-webrtc','safe','No WebRTC Detected','Browser does not expose WebRTC IPs','WebRTC may be disabled, or your browser protects against leaks.');
+  } else {
+    setCard2('card-webrtc','safe','No WebRTC Leak','Only local/private IPs detected via WebRTC',`Local IPs found: ${rtcIPs.join(', ')} (normal)`);
+  }
+
+  // DNS card
+  if(dnsLeaked){
+    setCard2('card-dns','leaked','DNS Leak Detected',`DNS resolver: ${dnsIP}`,'Your DNS queries may be going to your ISP instead of your VPN. Enable DNS leak protection.');
+  } else if(dnsIP && dnsStatus!=='unknown'){
+    setCard2('card-dns','safe','No DNS Leak',`DNS resolver: ${dnsIP||'Cloudflare DoH'}`,dnsStatus==='private'?'Using local DNS resolver':'DNS is routed correctly');
+  } else {
+    setCard2('card-dns','info','DNS Check','Unable to verify DNS resolver','Cloudflare DoH was unreachable — test your DNS manually at 1.1.1.1/help');
+  }
+
+  // Timezone card
+  if(tzMismatch){
+    setCard2('card-tz','warn','Timezone Mismatch',`Browser: ${userTZ}`,`IP says you're in ${userCountry} but your timezone differs — could expose your real location.`);
+  } else {
+    setCard2('card-tz','safe','Timezone OK',`${userTZ}`,`Timezone is consistent with IP location.`);
+  }
+
+  // Browser card
+  setCard2('card-browser','info',`${browser.browser} on ${browser.os}`,`Language: ${browser.languages||'—'}`,`Timezone: ${userTZ}`);
+
+  // ── Overall banner ───────────────────────────────────────────────────────
+  const overall=$('overall');
+  overall.style.display='block';
+  overall.className=`${overallStatus}`;
+  const labelText={safe:'✓ Privacy Protected',partial:'⚠ Partial Leaks Detected',leaked:'⛔ Privacy Leaks Detected'}[overallStatus];
+  const subText=leaks.length?`Leaks found: ${leaks.join(', ')} — your real identity may be exposed.`:warnings.length?`Warning: ${warnings.join(', ')} — minor fingerprinting risk.`:'Your IP, DNS, and WebRTC are not leaking. Your VPN appears to be working correctly.';
+  overall.innerHTML=`<span class="score-badge ${overallStatus}">${score}</span><div class="overall-label ${overallStatus}">${{safe:'Privacy Score',partial:'Privacy Score',leaked:'Privacy Score'}[overallStatus]}</div><div class="overall-title">${labelText}</div><div class="overall-sub">${subText}</div>`;
+
+  // ── Detail table ─────────────────────────────────────────────────────────
+  const rows=[
+    ['Public IP',userIP],
+    ['Country',`${flag(userCountryCode)} ${userCountry}`],
+    ['City / Region',`${userCity||'—'} / ${userRegion||'—'}`],
+    ['ISP / Org',userISP],
+    ['VPN/Hosting IP',isHosting?'✓ Likely':'✗ Looks residential'],
+    ['WebRTC Status',rtcLeaked?`⚠ LEAKED (${publicRTCIPs.join(', ')})`:'✓ Safe'],
+    ['WebRTC Local IPs',rtcIPs.filter(isPrivate).join(', ')||'None'],
+    ['DNS Resolver',dnsIP||'Unknown'],
+    ['DNS Status',dnsLeaked?'⚠ LEAKED':'✓ Safe'],
+    ['Browser',`${browser.browser} on ${browser.os}`],
+    ['Timezone',userTZ],
+    ['Languages',browser.languages||'—'],
+    ['Timezone vs IP',tzMismatch?'⚠ Mismatch':'✓ Consistent'],
+    ['Privacy Score',`${score}/100`],
+  ];
+  $('detail-table').innerHTML='<thead><tr><th>Check</th><th>Result</th></tr></thead><tbody>'+rows.map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')+'</tbody>';
+
+  // ── Fix section ───────────────────────────────────────────────────────────
+  const fixes=[];
+  if(rtcLeaked) fixes.push('<strong>WebRTC Leak:</strong> Install uBlock Origin and enable "Prevent WebRTC from leaking local IP address" in its settings. Or use Brave browser which blocks WebRTC by default. In Firefox: <code>about:config → media.peerconnection.enabled → false</code>.');
+  if(dnsLeaked) fixes.push('<strong>DNS Leak:</strong> Enable "DNS leak protection" in your VPN app settings. Alternatively, set your system DNS to <strong>1.1.1.1</strong> (Cloudflare) or <strong>9.9.9.9</strong> (Quad9) for privacy-focused resolution.');
+  if(tzMismatch) fixes.push('<strong>Timezone Mismatch:</strong> Your browser timezone reveals your real location even through a VPN. Some privacy browsers (Brave, Tor) randomize timezone. You can also change your system timezone to match your VPN exit location.');
+  if(fixes.length){
+    $('fix-section').style.display='block';
+    $('fix-content').innerHTML=fixes.map(f=>`<p style="margin-bottom:12px">→ ${f}</p>`).join('');
+  }
+}
+
+window.addEventListener('DOMContentLoaded',runTests);
+</script>
+</body>
+</html>
