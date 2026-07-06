@@ -161,6 +161,15 @@ footer a{color:var(--text-muted)}
     </div>
   </div>
 
+  <div class="info-card">
+    <h2>🧭 What a VPN Actually Protects — and What It Doesn't</h2>
+    <p style="color:var(--text-muted);font-size:13px;line-height:1.8;margin-bottom:10px">A lot of the confusion behind "is my VPN working?" comes from not knowing what a VPN is actually designed to hide in the first place. It's worth separating that out clearly.</p>
+    <p style="color:var(--text-muted);font-size:13px;line-height:1.8;margin-bottom:10px"><strong style="color:var(--text)">What it protects:</strong> a VPN encrypts the traffic between your device and the VPN server, and replaces your visible IP address with one belonging to the VPN provider. This stops your ISP from seeing which sites you visit (they only see an encrypted tunnel to the VPN), and it stops the websites you visit from seeing your real IP and rough location — provided none of the leaks this page checks for are happening.</p>
+    <p style="color:var(--text-muted);font-size:13px;line-height:1.8;margin-bottom:10px"><strong style="color:var(--text)">What it does not protect:</strong> a VPN does nothing about browser fingerprinting — the combination of your screen resolution, installed fonts, browser version, canvas rendering, and other passive signals that can re-identify you across sites without ever touching your IP. It also does not stop a website from knowing who you are once you log into an account there (your VPN hides your network location, not your identity to services you've already authenticated with). And it does not encrypt anything after traffic leaves the VPN's own server — the VPN provider itself can technically see your traffic at that point, which is why provider trust and no-logs policies matter as much as the technology itself.</p>
+    <p style="color:var(--text-muted);font-size:13px;line-height:1.8;margin-bottom:10px"><strong style="color:var(--text)">The DNS/WebRTC leak distinction, concretely:</strong> think of it as two separate doors out of the encrypted tunnel. A DNS leak happens when your device asks "what's the address for example.com?" directly to your ISP's resolver instead of asking through the VPN — so your ISP still learns every domain you visit, even though your actual page content stays encrypted. A WebRTC leak is different: it's your browser directly announcing your real IP address to a website (for peer-to-peer features like video calls), completely bypassing the VPN tunnel altogether. A VPN can fix one without fixing the other, which is exactly why this test checks them as two separate, independent checks rather than a single pass/fail.</p>
+    <p style="color:var(--text-muted);font-size:13px;line-height:1.8">Understanding this split matters because the fix is different for each: DNS leaks are usually solved inside your VPN app's settings, while WebRTC leaks are usually solved at the browser level (extension or built-in setting) regardless of which VPN you use.</p>
+  </div>
+
   <div class="faq-card">
     <h2>Frequently Asked Questions</h2>
     <details open><summary>What is a DNS leak?</summary><p>A DNS leak occurs when your VPN fails to route your DNS queries through its encrypted tunnel. Instead, DNS requests go to your ISP's DNS servers, revealing which websites you visit even if your IP appears to be from the VPN. A good VPN should route ALL traffic — including DNS — through its servers.</p></details>
@@ -173,7 +182,7 @@ footer a{color:var(--text-muted)}
   <div class="ad-slot"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-6626869606288906" data-ad-slot="7766554433" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 </div>
 
-<footer><p>PrivacyLeakTest · Results are for informational purposes. No data is stored or logged.</p><p style="margin-top:4px"><a href="/privacy.html">Privacy Policy</a></p></footer>
+<footer><p>PrivacyLeakTest · Results are for informational purposes. No data is stored or logged.</p><p style="margin-top:4px"><a href="/about.html">About</a> · <a href="/privacy.html">Privacy Policy</a></p></footer>
 
 <script>
 // ── utilities ──────────────────────────────────────────────────────────────

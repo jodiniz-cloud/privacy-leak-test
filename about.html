@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Privacy Leak Test</title>
+<link rel="canonical" href="https://privacy-leak-test.pages.dev/about.html">
+<style>body{font-family:system-ui,sans-serif;max-width:700px;margin:40px auto;padding:0 20px;background:#0d1117;color:#e6edf3;line-height:1.7}h1{font-size:24px;margin-bottom:8px;color:#fff}h2{font-size:16px;margin:24px 0 8px;color:#58a6ff}p{color:#7d8590;font-size:14px;margin-bottom:12px}a{color:#58a6ff}</style>
+</head>
+<body>
+<h1>About This Tool</h1>
+<p>Privacy Leak Test is a free, independent tool that checks whether your VPN or browser is exposing your real IP address, DNS queries, or other identifying information — the kind of leaks that can undermine a VPN connection without you noticing.</p>
+<h2>How it works</h2>
+<p>The test runs entirely in your browser. It reads your public IP and approximate location via third-party IP geolocation APIs (ipapi.co, ipify.org), attempts a WebRTC connection to see whether your browser exposes a real IP address alongside any VPN-assigned one, and queries Cloudflare's public DNS-over-HTTPS endpoint to check whether your DNS resolution is happening through a privacy-respecting path or leaking to your ISP's default resolver. It then compares your browser's timezone against your detected location as an additional consistency check. Nothing you see here is invented — each check reflects a real technical signal your browser or network is emitting right now.</p>
+<h2>What this is not</h2>
+<p>This tool provides informational results only — it is not a certification that your VPN is secure, and it does not test every possible leak vector (for example, it does not evaluate your VPN provider's logging practices, encryption protocol strength, or kill-switch reliability). A clean result here means the specific checks on this page did not detect a leak at the moment you ran the test; it is not a guarantee of complete anonymity or security. If privacy is critical for your situation, combine this test with your VPN provider's own diagnostic tools and independent audits of that provider.</p>
+<h2>Independence</h2>
+<p>This site is not affiliated with, endorsed by, or sponsored by any VPN provider, browser maker, or the third-party APIs it queries for IP and DNS data. It is supported by display advertising (Google AdSense) so the tool can remain free with no signup. No data you generate during a test is stored, logged, or transmitted to us — all processing happens locally in your browser session.</p>
+<p><a href="/">← Back to Privacy Leak Test</a></p>
+</body>
+</html>
